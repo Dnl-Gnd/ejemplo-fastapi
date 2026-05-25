@@ -221,7 +221,6 @@ def read_root():
 
                 <div class="card" id="qr-output">
                     <canvas id="qrCanvas"></canvas>
-                    <img id="qrImage" alt="QR generado" style="display:none; border-radius: 20px; max-width: 100%;" />
                 </div>
             </div>
 
@@ -253,7 +252,6 @@ def read_root():
             const generateBtn = document.getElementById('generateBtn');
             const downloadBtn = document.getElementById('downloadBtn');
             const qrCanvas = document.getElementById('qrCanvas');
-            const qrImage = document.getElementById('qrImage');
             const result = document.getElementById('result');
             const fileInput = document.getElementById('fileInput');
             const scanFileBtn = document.getElementById('scanFileBtn');
@@ -266,27 +264,61 @@ def read_root():
             let cameraStream = null;
             let scanning = false;
 
-            function setMessage(node, text, isError = false) {
-                node.textContent = text;
+            function isUrl(text) {
+                return /^(https?:\/\/)[^\s]+$/i.test(text.trim());
+            }
+
+            function showResult(node, text, isError = false) {
+                node.innerHTML = '';
                 node.style.color = isError ? '#ff8d8d' : '#c0d4ff';
+                const trimmed = text.trim();
+
+                if (trimmed.startsWith('Contenido: ')) {
+                    const value = trimmed.slice(11).trim();
+                    const prefix = document.createTextNode('Contenido: ');
+                    node.appendChild(prefix);
+                    if (isUrl(value)) {
+                        const link = document.createElement('a');
+                        link.href = value;
+                        link.textContent = value;
+                        link.target = '_blank';
+                        link.rel = 'noopener noreferrer';
+                        link.style.color = '#7ac7ff';
+                        link.style.textDecoration = 'underline';
+                        node.appendChild(link);
+                        return;
+                    }
+                }
+
+                if (isUrl(trimmed)) {
+                    const link = document.createElement('a');
+                    link.href = trimmed;
+                    link.textContent = trimmed;
+                    link.target = '_blank';
+                    link.rel = 'noopener noreferrer';
+                    link.style.color = '#7ac7ff';
+                    link.style.textDecoration = 'underline';
+                    node.appendChild(link);
+                    return;
+                }
+
+                node.textContent = text;
             }
 
             function generateQRCode() {
                 const value = linkInput.value.trim();
                 if (!value) {
-                    setMessage(result, 'Ingresa un enlace o texto antes de generar.', true);
+                    showResult(result, 'Ingresa un enlace o texto antes de generar.', true);
                     return;
                 }
 
                 QRCode.toCanvas(qrCanvas, value, { width: 250, margin: 2 }, function (error) {
                     if (error) {
-                        setMessage(result, 'Error al generar el código QR.', true);
+                        showResult(result, 'Error al generar el código QR.', true);
                         return;
                     }
-                    qrImage.src = qrCanvas.toDataURL('image/png');
-                    qrImage.style.display = 'block';
                     downloadBtn.disabled = false;
-                    setMessage(result, 'QR generado correctamente. Puedes descargarlo.', false);
+                    showResult(result, 'QR generado correctamente. Puedes descargarlo.', false);
                 });
             }
 
@@ -305,7 +337,7 @@ def read_root():
             function readFromFile() {
                 const file = fileInput.files[0];
                 if (!file) {
-                    setMessage(fileResult, 'Selecciona primero una imagen con QR.', true);
+                    showResult(fileResult, 'Selecciona primero una imagen con QR.', true);
                     return;
                 }
 
@@ -321,9 +353,9 @@ def read_root():
                         const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
                         const decoded = decodeQRFromImage(imageData);
                         if (decoded) {
-                            setMessage(fileResult, 'Contenido: ' + decoded);
+                            showResult(fileResult, 'Contenido: ' + decoded);
                         } else {
-                            setMessage(fileResult, 'No se encontró ningún código QR en la imagen.', true);
+                            showResult(fileResult, 'No se encontró ningún código QR en la imagen.', true);
                         }
                     };
                     img.src = event.target.result;
@@ -339,10 +371,10 @@ def read_root():
                     scanning = true;
                     stopCameraBtn.disabled = false;
                     startCameraBtn.disabled = true;
-                    setMessage(cameraResult, 'Cámara activada. Apunta al código QR.');
+                    showResult(cameraResult, 'Cámara activada. Apunta al código QR.');
                     scanCameraFrame();
                 } catch (error) {
-                    setMessage(cameraResult, 'No se pudo iniciar la cámara: ' + error.message, true);
+                    showResult(cameraResult, 'No se pudo iniciar la cámara: ' + error.message, true);
                 }
             }
 
@@ -356,7 +388,7 @@ def read_root():
                 cameraVideo.srcObject = null;
                 startCameraBtn.disabled = false;
                 stopCameraBtn.disabled = true;
-                setMessage(cameraResult, 'Cámara detenida.');
+                showResult(cameraResult, 'Cámara detenida.');
             }
 
             function scanCameraFrame() {
@@ -372,7 +404,7 @@ def read_root():
                 const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
                 const decoded = decodeQRFromImage(imageData);
                 if (decoded) {
-                    setMessage(cameraResult, 'Contenido: ' + decoded);
+                    showResult(cameraResult, 'Contenido: ' + decoded);
                     stopCamera();
                     return;
                 }
