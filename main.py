@@ -53,253 +53,339 @@ def read_root():
                 padding: 0;
                 box-sizing: border-box;
             }
-            
+
             body {
                 font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', sans-serif;
-                background-color: #0b1220;
-                color: #f7f8fb;
-                line-height: 1.6;
+                background: radial-gradient(circle at top left, #2d66ff 0%, #091026 40%),
+                            radial-gradient(circle at bottom right, #0fb2a5 0%, transparent 35%);
+                color: #ecf2ff;
                 min-height: 100vh;
                 display: flex;
-                flex-direction: column;
-            }
-            
-            header {
-                border-bottom: 1px solid #25305c;
-            }
-            
-            nav {
-                max-width: 1100px;
-                margin: 0 auto;
-                display: flex;
+                justify-content: center;
                 align-items: center;
-                justify-content: space-between;
-                padding: 1.25rem 1.5rem;
+                padding: 2rem;
             }
-            
-            .logo {
-                font-size: 1.35rem;
-                font-weight: 700;
-                color: #fff;
-                text-decoration: none;
+
+            .container {
+                width: min(960px, 100%);
+                background: rgba(255, 255, 255, 0.05);
+                border: 1px solid rgba(255, 255, 255, 0.12);
+                backdrop-filter: blur(16px);
+                border-radius: 28px;
+                padding: 2rem;
+                box-shadow: 0 30px 80px rgba(4, 9, 28, 0.45);
             }
-            
-            main {
-                flex: 1;
-                max-width: 1100px;
-                margin: 0 auto;
-                padding: 3rem 1.5rem;
+
+            header {
                 display: flex;
                 flex-direction: column;
-                gap: 2rem;
-            }
-            
-            .hero {
+                gap: 0.75rem;
                 text-align: center;
+                margin-bottom: 1.75rem;
             }
-            
+
             h1 {
-                font-size: 2.75rem;
-                font-weight: 800;
-                color: #fff;
-                margin-bottom: 0.75rem;
+                font-size: clamp(2rem, 4vw, 3rem);
+                letter-spacing: -0.04em;
             }
-            
+
             p {
-                color: #c5cbdc;
-                font-size: 1rem;
+                color: #cbd6ff;
                 max-width: 760px;
                 margin: 0 auto;
+                line-height: 1.8;
             }
-            
-            .section {
-                background-color: #11182e;
-                border: 1px solid #22305b;
-                border-radius: 18px;
-                padding: 1.75rem;
-            }
-            
-            .section h2 {
-                margin-bottom: 1rem;
-                color: #f1f5ff;
-                font-size: 1.5rem;
-            }
-            
-            .section pre {
-                background-color: #0f172a;
-                color: #e2e8f0;
-                border-radius: 14px;
-                padding: 1rem;
-                overflow-x: auto;
-                font-family: 'SF Mono', Monaco, 'Cascadia Code', 'Roboto Mono', monospace;
-                font-size: 0.92rem;
-                line-height: 1.5;
-                white-space: pre-wrap;
-                word-break: break-word;
-            }
-            
-            .instructions {
-                display: grid;
-                gap: 1rem;
-            }
-            
-            .badge {
-                display: inline-flex;
-                align-items: center;
-                gap: 0.5rem;
-                padding: 0.45rem 0.85rem;
-                border-radius: 999px;
-                background: #1b2f68;
-                color: #dbeafe;
-                font-size: 0.9rem;
-                font-weight: 600;
-            }
-            
-            @media (max-width: 760px) {
-                nav {
-                    flex-direction: column;
-                    align-items: flex-start;
-                }
 
-                h1 {
-                    font-size: 2.25rem;
+            .grid {
+                display: grid;
+                grid-template-columns: 1.2fr 0.8fr;
+                gap: 1.5rem;
+            }
+
+            .card {
+                background: rgba(14, 26, 64, 0.8);
+                border: 1px solid rgba(255, 255, 255, 0.08);
+                border-radius: 24px;
+                padding: 1.5rem;
+            }
+
+            .card h2 {
+                margin-bottom: 1rem;
+                font-size: 1.2rem;
+                color: #f5f9ff;
+            }
+
+            label {
+                display: block;
+                margin-bottom: 0.65rem;
+                color: #a8b8ff;
+                font-size: 0.96rem;
+            }
+
+            input[type=text], input[type=file] {
+                width: 100%;
+                padding: 0.95rem 1rem;
+                border-radius: 14px;
+                border: 1px solid rgba(255, 255, 255, 0.12);
+                background: rgba(255, 255, 255, 0.05);
+                color: #f8fbff;
+                font-size: 1rem;
+            }
+
+            button {
+                width: 100%;
+                margin-top: 1rem;
+                padding: 0.95rem 1rem;
+                border: none;
+                border-radius: 14px;
+                background: linear-gradient(135deg, #5d8cff 0%, #2e58ff 100%);
+                color: white;
+                font-size: 1rem;
+                font-weight: 700;
+                cursor: pointer;
+                transition: transform 0.2s ease, box-shadow 0.2s ease;
+            }
+
+            button:hover {
+                transform: translateY(-1px);
+                box-shadow: 0 18px 35px rgba(45, 102, 255, 0.28);
+            }
+
+            button.secondary {
+                background: rgba(255, 255, 255, 0.08);
+                color: #dce6ff;
+                border: 1px solid rgba(255, 255, 255, 0.15);
+            }
+
+            #qr-output {
+                display: grid;
+                place-items: center;
+                gap: 1rem;
+                min-height: 330px;
+            }
+
+            #qrCanvas {
+                width: 250px;
+                height: 250px;
+                background: white;
+                border-radius: 20px;
+            }
+
+            #result {
+                margin-top: 1rem;
+                color: #c0d4ff;
+                min-height: 1.4rem;
+                text-align: center;
+                font-size: 0.96rem;
+            }
+
+            .camera {
+                margin-top: 1rem;
+                border-radius: 18px;
+                overflow: hidden;
+                background: #0f1b41;
+                min-height: 220px;
+                display: grid;
+                place-items: center;
+            }
+
+            video {
+                width: 100%;
+                height: auto;
+                display: block;
+            }
+
+            @media (max-width: 860px) {
+                .grid {
+                    grid-template-columns: 1fr;
                 }
             }
         </style>
     </head>
     <body>
-        <header>
-            <nav>
-                <a href="/" class="logo">Generador de Código QR</a>
-            </nav>
-        </header>
-        <main>
-            <section class="hero">
-                <h1>Arranque del proyecto</h1>
-                <p>Esta página muestra el código y las instrucciones para ejecutar una pequeña aplicación de escritorio en Tkinter que genera, guarda y lee códigos QR.</p>
-            </section>
+        <div class="container">
+            <header>
+                <h1>Generador y lector de Código QR</h1>
+                <p>Usa esta aplicación directamente en el navegador para generar un código QR, descargarlo y leer el contenido desde una imagen o cámara.</p>
+            </header>
 
-            <section class="section">
-                <h2>Instalación requerida</h2>
-                <div class="instructions">
-                    <pre>pip install qrcode[pil]
-pip install Pillow
-pip install opencv-python
-pip install opencv-contrib-python</pre>
+            <div class="grid">
+                <div class="card">
+                    <h2>Generar QR</h2>
+                    <label for="linkInput">Enlace o texto</label>
+                    <input id="linkInput" type="text" placeholder="Ingresa un enlace o texto" />
+                    <button id="generateBtn">Generar Código QR</button>
+                    <button id="downloadBtn" class="secondary" disabled>Descargar QR</button>
+                    <div id="result"></div>
                 </div>
-            </section>
 
-            <section class="section">
-                <h2>Cómo ejecutar</h2>
-                <div class="instructions">
-                    <pre>python app.py</pre>
+                <div class="card" id="qr-output">
+                    <canvas id="qrCanvas"></canvas>
+                    <img id="qrImage" alt="QR generado" style="display:none; border-radius: 20px; max-width: 100%;" />
                 </div>
-            </section>
+            </div>
 
-            <section class="section">
-                <h2>Código de ejemplo</h2>
-                <pre>import tkinter as tk
-from tkinter import filedialog, messagebox
-import qrcode
-from PIL import ImageTk, Image
-import cv2
+            <div class="grid" style="margin-top: 1.5rem; gap: 1.5rem;">
+                <div class="card">
+                    <h2>Leer desde imagen</h2>
+                    <label for="fileInput">Selecciona una imagen con código QR</label>
+                    <input id="fileInput" type="file" accept="image/*" />
+                    <button id="scanFileBtn" class="secondary">Leer Imagen</button>
+                    <div id="fileResult"></div>
+                </div>
 
-imagen_qr = None
-imagen_pil = None
-camara_activa = False
-cap = None
-detector = cv2.QRCodeDetector()
+                <div class="card">
+                    <h2>Escanear con cámara</h2>
+                    <button id="startCameraBtn" class="secondary">Iniciar Cámara</button>
+                    <button id="stopCameraBtn" class="secondary" disabled>Detener Cámara</button>
+                    <div class="camera">
+                        <video id="cameraVideo" playsinline></video>
+                    </div>
+                    <div id="cameraResult"></div>
+                </div>
+            </div>
+        </div>
 
-def generate_qr():
-    global imagen_qr, imagen_pil
-    link = entrada_link.get().strip()
+        <script src="https://cdn.jsdelivr.net/npm/qrcode@1.5.1/build/qrcode.min.js"></script>
+        <script src="https://cdn.jsdelivr.net/npm/jsqr@1.4.0/dist/jsQR.min.js"></script>
+        <script>
+            const linkInput = document.getElementById('linkInput');
+            const generateBtn = document.getElementById('generateBtn');
+            const downloadBtn = document.getElementById('downloadBtn');
+            const qrCanvas = document.getElementById('qrCanvas');
+            const qrImage = document.getElementById('qrImage');
+            const result = document.getElementById('result');
+            const fileInput = document.getElementById('fileInput');
+            const scanFileBtn = document.getElementById('scanFileBtn');
+            const fileResult = document.getElementById('fileResult');
+            const startCameraBtn = document.getElementById('startCameraBtn');
+            const stopCameraBtn = document.getElementById('stopCameraBtn');
+            const cameraVideo = document.getElementById('cameraVideo');
+            const cameraResult = document.getElementById('cameraResult');
 
-    if not link:
-        messagebox.showerror("Error", "Por favor, ingresa un enlace.")
-        return
+            let cameraStream = null;
+            let scanning = false;
 
-    qr = qrcode.make(link)
-    imagen_pil = qr
-    imagen_qr = ImageTk.PhotoImage(qr.resize((250, 250)))
-    etiqueta_imagen.config(image=imagen_qr)
-    boton_descargar.config(state="normal")
+            function setMessage(node, text, isError = false) {
+                node.textContent = text;
+                node.style.color = isError ? '#ff8d8d' : '#c0d4ff';
+            }
 
+            function generateQRCode() {
+                const value = linkInput.value.trim();
+                if (!value) {
+                    setMessage(result, 'Ingresa un enlace o texto antes de generar.', true);
+                    return;
+                }
 
-def descargar_qr():
-    if imagen_pil is None:
-        return
+                QRCode.toCanvas(qrCanvas, value, { width: 250, margin: 2 }, function (error) {
+                    if (error) {
+                        setMessage(result, 'Error al generar el código QR.', true);
+                        return;
+                    }
+                    qrImage.src = qrCanvas.toDataURL('image/png');
+                    qrImage.style.display = 'block';
+                    downloadBtn.disabled = false;
+                    setMessage(result, 'QR generado correctamente. Puedes descargarlo.', false);
+                });
+            }
 
-    ruta = filedialog.asksaveasfilename(
-        defaultextension=".png",
-        filetypes=[("imagen PNG", "*.png")],
-        title="Guardar código QR"
-    )
+            function downloadQRCode() {
+                const link = document.createElement('a');
+                link.href = qrCanvas.toDataURL('image/png');
+                link.download = 'codigo-qr.png';
+                link.click();
+            }
 
-    if ruta:
-        imagen_pil.save(ruta)
-        messagebox.showinfo("Listo", f"Código QR guardado exitosamente en {ruta}")
+            function decodeQRFromImage(imageData) {
+                const code = jsQR(imageData.data, imageData.width, imageData.height);
+                return code ? code.data : null;
+            }
 
+            function readFromFile() {
+                const file = fileInput.files[0];
+                if (!file) {
+                    setMessage(fileResult, 'Selecciona primero una imagen con QR.', true);
+                    return;
+                }
 
-def leer_desde_imagen():
-    ruta = filedialog.askopenfilename(
-        filetypes=[("Imágenes", "*.png *.jpg *.jpeg *.bmp")],
-        title="Seleccionar imagen con código QR"
-    )
+                const reader = new FileReader();
+                reader.onload = function (event) {
+                    const img = new Image();
+                    img.onload = function () {
+                        const canvas = document.createElement('canvas');
+                        canvas.width = img.width;
+                        canvas.height = img.height;
+                        const ctx = canvas.getContext('2d');
+                        ctx.drawImage(img, 0, 0);
+                        const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+                        const decoded = decodeQRFromImage(imageData);
+                        if (decoded) {
+                            setMessage(fileResult, 'Contenido: ' + decoded);
+                        } else {
+                            setMessage(fileResult, 'No se encontró ningún código QR en la imagen.', true);
+                        }
+                    };
+                    img.src = event.target.result;
+                };
+                reader.readAsDataURL(file);
+            }
 
-    if not ruta:
-        return
+            async function startCamera() {
+                try {
+                    cameraStream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment' } });
+                    cameraVideo.srcObject = cameraStream;
+                    await cameraVideo.play();
+                    scanning = true;
+                    stopCameraBtn.disabled = false;
+                    startCameraBtn.disabled = true;
+                    setMessage(cameraResult, 'Cámara activada. Apunta al código QR.');
+                    scanCameraFrame();
+                } catch (error) {
+                    setMessage(cameraResult, 'No se pudo iniciar la cámara: ' + error.message, true);
+                }
+            }
 
-    imagen = cv2.imread(ruta)
-    contenido, _, _ = detector.detectAndDecode(imagen)
+            function stopCamera() {
+                scanning = false;
+                if (cameraStream) {
+                    cameraStream.getTracks().forEach(track => track.stop());
+                    cameraStream = null;
+                }
+                cameraVideo.pause();
+                cameraVideo.srcObject = null;
+                startCameraBtn.disabled = false;
+                stopCameraBtn.disabled = true;
+                setMessage(cameraResult, 'Cámara detenida.');
+            }
 
-    if contenido:
-        etiqueta_resultado.config(text=f"Contenido: {contenido}")
-    else:
-        messagebox.showwarning("Sin resultado", "No se encontró ningún código QR en la imagen.")
+            function scanCameraFrame() {
+                if (!scanning) {
+                    return;
+                }
 
+                const canvas = document.createElement('canvas');
+                canvas.width = cameraVideo.videoWidth;
+                canvas.height = cameraVideo.videoHeight;
+                const ctx = canvas.getContext('2d');
+                ctx.drawImage(cameraVideo, 0, 0, canvas.width, canvas.height);
+                const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+                const decoded = decodeQRFromImage(imageData);
+                if (decoded) {
+                    setMessage(cameraResult, 'Contenido: ' + decoded);
+                    stopCamera();
+                    return;
+                }
 
-def escanear_camara():
-    global camara_activa, cap
+                requestAnimationFrame(scanCameraFrame);
+            }
 
-    if not camara_activa:
-        return
-
-    ret, frame = cap.read()
-
-    if ret:
-        contenido, _, _ = detector.detectAndDecode(frame)
-
-        if contenido:
-            etiqueta_resultado.config(text=f"Contenido: {contenido}")
-            detener_camara()
-            return
-
-        frame_rgb = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
-        img = Image.fromarray(frame_rgb).resize((250, 250))
-        foto = ImageTk.PhotoImage(img)
-        etiqueta_imagen.config(image=foto)
-        etiqueta_imagen.image = foto
-
-    ventana.after(30, escanear_camara)
-
-
-def detener_camara():
-    global camara_activa, cap
-    camara_activa = False
-    if cap:
-        cap.release()
-        cap = None
-    etiqueta_resultado.config(image="")
-
-ventana = tk.Tk()
-ventana.title("Generador de Código QR")
-ventana.geometry("400x600")
-ventana.resizable(False, False)
-
-# ... resto del código del GUI ...
-                </pre>
-            </section>
-        </main>
+            generateBtn.addEventListener('click', generateQRCode);
+            downloadBtn.addEventListener('click', downloadQRCode);
+            scanFileBtn.addEventListener('click', readFromFile);
+            startCameraBtn.addEventListener('click', startCamera);
+            stopCameraBtn.addEventListener('click', stopCamera);
+        </script>
     </body>
     </html>
     """
