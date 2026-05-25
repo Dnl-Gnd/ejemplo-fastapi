@@ -367,12 +367,12 @@ def read_root():
                 try {
                     cameraStream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment' } });
                     cameraVideo.srcObject = cameraStream;
-                    await cameraVideo.play();
+                    cameraVideo.play();
                     scanning = true;
                     stopCameraBtn.disabled = false;
                     startCameraBtn.disabled = true;
                     showResult(cameraResult, 'Cámara activada. Apunta al código QR.');
-                    scanCameraFrame();
+                    requestAnimationFrame(scanCameraFrame);
                 } catch (error) {
                     showResult(cameraResult, 'No se pudo iniciar la cámara: ' + error.message, true);
                 }
@@ -396,16 +396,35 @@ def read_root():
                     return;
                 }
 
+                if (cameraVideo.readyState < HTMLMediaElement.HAVE_ENOUGH_DATA) {
+                    requestAnimationFrame(scanCameraFrame);
+                    return;
+                }
+
+                const width = cameraVideo.videoWidth;
+                const height = cameraVideo.videoHeight;
+                if (!width || !height) {
+                    requestAnimationFrame(scanCameraFrame);
+                    return;
+                }
+
                 const canvas = document.createElement('canvas');
-                canvas.width = cameraVideo.videoWidth;
-                canvas.height = cameraVideo.videoHeight;
+                canvas.width = width;
+                canvas.height = height;
                 const ctx = canvas.getContext('2d');
-                ctx.drawImage(cameraVideo, 0, 0, canvas.width, canvas.height);
-                const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
-                const decoded = decodeQRFromImage(imageData);
-                if (decoded) {
-                    showResult(cameraResult, 'Contenido: ' + decoded);
-                    stopCamera();
+
+                try {
+                    ctx.drawImage(cameraVideo, 0, 0, width, height);
+                    const imageData = ctx.getImageData(0, 0, width, height);
+                    const decoded = decodeQRFromImage(imageData);
+                    if (decoded) {
+                        showResult(cameraResult, 'Contenido: ' + decoded);
+                        stopCamera();
+                        return;
+                    }
+                } catch (error) {
+                    console.warn('Error al leer la cámara:', error);
+                    requestAnimationFrame(scanCameraFrame);
                     return;
                 }
 
