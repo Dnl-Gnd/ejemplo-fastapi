@@ -289,7 +289,7 @@ def read_root():
             let photoState = 'none';
 
             function isUrl(text) {
-                return /^(https?:\/\/)[^\s]+$/i.test(text.trim());
+                return /^(https?:\\/\\/)[^\\s]+$/i.test(text.trim());
             }
 
             function showResult(node, text, isError = false) {
@@ -405,6 +405,7 @@ def read_root():
                     cameraActionBtn.textContent = 'Detener Cámara';
                     photoActionBtn.disabled = false;
                     photoActionBtn.textContent = 'Tomar Foto';
+                    cameraVideo.style.display = 'block';
                     photoCanvas.style.display = 'none';
                     showResult(cameraResult, 'Cámara activada. Presiona Tomar Foto para capturar.');
                 } catch (error) {
@@ -413,19 +414,24 @@ def read_root():
             }
 
             function stopCamera() {
+                stopCameraStream();
                 cameraActive = false;
                 photoState = 'none';
+                cameraVideo.style.display = 'block';
+                cameraActionBtn.textContent = 'Iniciar Cámara';
+                photoActionBtn.disabled = true;
+                photoActionBtn.textContent = 'Tomar Foto';
+                photoCanvas.style.display = 'none';
+                showResult(cameraResult, 'Cámara detenida.');
+            }
+
+            function stopCameraStream() {
                 if (cameraStream) {
                     cameraStream.getTracks().forEach(track => track.stop());
                     cameraStream = null;
                 }
                 cameraVideo.pause();
                 cameraVideo.srcObject = null;
-                cameraActionBtn.textContent = 'Iniciar Cámara';
-                photoActionBtn.disabled = true;
-                photoActionBtn.textContent = 'Tomar Foto';
-                photoCanvas.style.display = 'none';
-                showResult(cameraResult, 'Cámara detenida.');
             }
 
             function capturePhoto() {
@@ -446,7 +452,11 @@ def read_root():
                 const ctx = photoCanvas.getContext('2d');
                 ctx.drawImage(cameraVideo, 0, 0, width, height);
                 photoCanvas.style.display = 'block';
+                cameraVideo.style.display = 'none';
+                stopCameraStream();
+                cameraActive = false;
                 photoState = 'ready';
+                cameraActionBtn.textContent = 'Iniciar Cámara';
                 photoActionBtn.textContent = 'Obtener QR';
                 showResult(cameraResult, 'Foto tomada. Presiona Obtener QR para leerla.');
             }
@@ -476,6 +486,7 @@ def read_root():
                 } else if (photoState === 'reset') {
                     photoActionBtn.textContent = 'Tomar Foto';
                     photoState = 'take';
+                    cameraVideo.style.display = 'block';
                     photoCanvas.style.display = 'none';
                     showResult(cameraResult, 'Listo para tomar otra foto.');
                 }
