@@ -179,23 +179,42 @@ def read_root():
                 font-size: 0.96rem;
             }
 
+            .button-row {
+                display: grid;
+                grid-template-columns: repeat(2, minmax(0, 1fr));
+                gap: 0.75rem;
+                margin-bottom: 1rem;
+            }
+
             .camera {
                 margin-top: 1rem;
                 border-radius: 18px;
                 overflow: hidden;
                 background: #0f1b41;
-                min-height: 220px;
+                min-height: 260px;
                 display: grid;
-                place-items: center;
+                gap: 1rem;
+                padding: 1rem;
             }
 
-            video {
+            video,
+            #photoCanvas {
                 width: 100%;
                 height: auto;
+                border-radius: 18px;
                 display: block;
+                background: #061124;
+            }
+
+            #photoCanvas {
+                display: none;
             }
 
             @media (max-width: 860px) {
+                .grid {
+                    grid-template-columns: 1fr;
+                }
+            }
                 .grid {
                     grid-template-columns: 1fr;
                 }
@@ -235,10 +254,13 @@ def read_root():
 
                 <div class="card">
                     <h2>Escanear con cámara</h2>
-                    <button id="startCameraBtn" class="secondary">Iniciar Cámara</button>
-                    <button id="stopCameraBtn" class="secondary" disabled>Detener Cámara</button>
+                    <div class="button-row">
+                        <button id="cameraActionBtn" class="secondary">Iniciar Cámara</button>
+                        <button id="photoActionBtn" class="secondary" disabled>Tomar Foto</button>
+                    </div>
                     <div class="camera">
                         <video id="cameraVideo" playsinline></video>
+                        <canvas id="photoCanvas"></canvas>
                     </div>
                     <div id="cameraResult"></div>
                 </div>
@@ -256,13 +278,15 @@ def read_root():
             const fileInput = document.getElementById('fileInput');
             const scanFileBtn = document.getElementById('scanFileBtn');
             const fileResult = document.getElementById('fileResult');
-            const startCameraBtn = document.getElementById('startCameraBtn');
-            const stopCameraBtn = document.getElementById('stopCameraBtn');
+            const cameraActionBtn = document.getElementById('cameraActionBtn');
+            const photoActionBtn = document.getElementById('photoActionBtn');
             const cameraVideo = document.getElementById('cameraVideo');
+            const photoCanvas = document.getElementById('photoCanvas');
             const cameraResult = document.getElementById('cameraResult');
 
             let cameraStream = null;
-            let scanning = false;
+            let cameraActive = false;
+            let photoState = 'none';
 
             function isUrl(text) {
                 return /^(https?:\/\/)[^\s]+$/i.test(text.trim());
@@ -363,79 +387,105 @@ def read_root():
                 reader.readAsDataURL(file);
             }
 
+            async function toggleCamera() {
+                if (!cameraActive) {
+                    await startCamera();
+                } else {
+                    stopCamera();
+                }
+            }
+
             async function startCamera() {
                 try {
                     cameraStream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment' } });
                     cameraVideo.srcObject = cameraStream;
-                    cameraVideo.play();
-                    scanning = true;
-                    stopCameraBtn.disabled = false;
-                    startCameraBtn.disabled = true;
-                    showResult(cameraResult, 'Cámara activada. Apunta al código QR.');
-                    requestAnimationFrame(scanCameraFrame);
+                    await cameraVideo.play();
+                    cameraActive = true;
+                    photoState = 'take';
+                    cameraActionBtn.textContent = 'Detener Cámara';
+                    photoActionBtn.disabled = false;
+                    photoActionBtn.textContent = 'Tomar Foto';
+                    photoCanvas.style.display = 'none';
+                    showResult(cameraResult, 'Cámara activada. Presiona Tomar Foto para capturar.');
                 } catch (error) {
                     showResult(cameraResult, 'No se pudo iniciar la cámara: ' + error.message, true);
                 }
             }
 
             function stopCamera() {
-                scanning = false;
+                cameraActive = false;
+                photoState = 'none';
                 if (cameraStream) {
                     cameraStream.getTracks().forEach(track => track.stop());
                     cameraStream = null;
                 }
                 cameraVideo.pause();
                 cameraVideo.srcObject = null;
-                startCameraBtn.disabled = false;
-                stopCameraBtn.disabled = true;
+                cameraActionBtn.textContent = 'Iniciar Cámara';
+                photoActionBtn.disabled = true;
+                photoActionBtn.textContent = 'Tomar Foto';
+                photoCanvas.style.display = 'none';
                 showResult(cameraResult, 'Cámara detenida.');
             }
 
-            function scanCameraFrame() {
-                if (!scanning) {
-                    return;
-                }
-
-                if (cameraVideo.readyState < HTMLMediaElement.HAVE_ENOUGH_DATA) {
-                    requestAnimationFrame(scanCameraFrame);
+            function capturePhoto() {
+                if (!cameraActive) {
+                    showResult(cameraResult, 'Inicia primero la cámara.', true);
                     return;
                 }
 
                 const width = cameraVideo.videoWidth;
                 const height = cameraVideo.videoHeight;
                 if (!width || !height) {
-                    requestAnimationFrame(scanCameraFrame);
+                    showResult(cameraResult, 'La cámara aún no está lista. Intenta de nuevo.', true);
                     return;
                 }
 
-                const canvas = document.createElement('canvas');
-                canvas.width = width;
-                canvas.height = height;
-                const ctx = canvas.getContext('2d');
+                photoCanvas.width = width;
+                photoCanvas.height = height;
+                const ctx = photoCanvas.getContext('2d');
+                ctx.drawImage(cameraVideo, 0, 0, width, height);
+                photoCanvas.style.display = 'block';
+                photoState = 'ready';
+                photoActionBtn.textContent = 'Obtener QR';
+                showResult(cameraResult, 'Foto tomada. Presiona Obtener QR para leerla.');
+            }
 
+            function obtainQrFromPhoto() {
+                const ctx = photoCanvas.getContext('2d');
                 try {
-                    ctx.drawImage(cameraVideo, 0, 0, width, height);
-                    const imageData = ctx.getImageData(0, 0, width, height);
+                    const imageData = ctx.getImageData(0, 0, photoCanvas.width, photoCanvas.height);
                     const decoded = decodeQRFromImage(imageData);
                     if (decoded) {
                         showResult(cameraResult, 'Contenido: ' + decoded);
-                        stopCamera();
-                        return;
+                    } else {
+                        showResult(cameraResult, 'No se detectó QR en la foto.', true);
                     }
                 } catch (error) {
-                    console.warn('Error al leer la cámara:', error);
-                    requestAnimationFrame(scanCameraFrame);
-                    return;
+                    showResult(cameraResult, 'Error al procesar la foto: ' + error.message, true);
                 }
+                photoState = 'reset';
+                photoActionBtn.textContent = 'Tomar nueva foto';
+            }
 
-                requestAnimationFrame(scanCameraFrame);
+            function handlePhotoAction() {
+                if (photoState === 'take') {
+                    capturePhoto();
+                } else if (photoState === 'ready') {
+                    obtainQrFromPhoto();
+                } else if (photoState === 'reset') {
+                    photoActionBtn.textContent = 'Tomar Foto';
+                    photoState = 'take';
+                    photoCanvas.style.display = 'none';
+                    showResult(cameraResult, 'Listo para tomar otra foto.');
+                }
             }
 
             generateBtn.addEventListener('click', generateQRCode);
             downloadBtn.addEventListener('click', downloadQRCode);
             scanFileBtn.addEventListener('click', readFromFile);
-            startCameraBtn.addEventListener('click', startCamera);
-            stopCameraBtn.addEventListener('click', stopCamera);
+            cameraActionBtn.addEventListener('click', toggleCamera);
+            photoActionBtn.addEventListener('click', handlePhotoAction);
         </script>
     </body>
     </html>
