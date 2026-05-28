@@ -44,7 +44,7 @@ def get_item(item_id: int):
 def generate_qr(data: str):
     qr = qrcode.QRCode(
         version=1,
-        error_correction=qrcode.constants.ERROR_CORRECT_H,
+        error_correction=qrcode.constants.ERROR_CORRECT_L,
         box_size=12,
         border=4,
     )
@@ -350,6 +350,8 @@ def read_root():
                 node.textContent = text;
             }
 
+            let qrImageUrl = null;
+
             function generateQRCode() {
                 const value = linkInput.value.trim();
                 if (!value) {
@@ -357,22 +359,25 @@ def read_root():
                     return;
                 }
 
-                QRCode.toCanvas(qrCanvas, value, {
-                    width: 300,
-                    margin: 4,
-                    errorCorrectionLevel: 'H',
-                    color: {
-                        dark: '#000000',
-                        light: '#ffffff'
-                    }
-                }, function (error) {
-                    if (error) {
-                        showResult(result, 'Error al generar el código QR.', true);
-                        return;
-                    }
+                const url = '/api/qr?data=' + encodeURIComponent(value);
+
+                const img = new Image();
+                img.onload = function () {
+                    qrCanvas.width = img.naturalWidth;
+                    qrCanvas.height = img.naturalHeight;
+                    qrCanvas.style.width = '300px';
+                    qrCanvas.style.height = '300px';
+                    const ctx = qrCanvas.getContext('2d');
+                    ctx.imageSmoothingEnabled = false;
+                    ctx.drawImage(img, 0, 0);
+                    qrImageUrl = url;
                     downloadBtn.disabled = false;
                     showResult(result, 'QR generado correctamente. Puedes descargarlo.', false);
-                });
+                };
+                img.onerror = function () {
+                    showResult(result, 'Error al generar el código QR desde el servidor.', true);
+                };
+                img.src = url;
             }
 
             function downloadQRCode() {
