@@ -1,11 +1,8 @@
 #npx plugins add vercel/vercel-plugin
 #pip install fastapi
 
-import io
-
-import qrcode
 from fastapi import FastAPI
-from fastapi.responses import HTMLResponse, StreamingResponse
+from fastapi.responses import HTMLResponse
 
 
 app = FastAPI(
