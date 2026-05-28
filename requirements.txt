@@ -1,3 +1,5 @@
 fastapi
 qrcode[pil]
 pillow
+Pillow
+uvicorn
