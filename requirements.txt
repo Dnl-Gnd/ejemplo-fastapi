@@ -1,0 +1,3 @@
+fastapi
+qrcode[pil]
+pillow
