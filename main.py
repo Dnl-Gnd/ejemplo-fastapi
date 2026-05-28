@@ -1,7 +1,7 @@
 #npx plugins add vercel/vercel-plugin
 #pip install fastapi
 
-from qrcode import qrcode
+import qrcode
 import io
 from fastapi.responses import StreamingResponse
 from fastapi import FastAPI
@@ -44,9 +44,9 @@ def get_item(item_id: int):
 def generate_qr(data: str):
     qr = qrcode.QRCode(
         version=1,
-        error_correction=qrcode.constants.ERROR_CORRECT_L,
-        box_size=10,
-        border=5,
+        error_correction=qrcode.constants.ERROR_CORRECT_H,
+        box_size=12,
+        border=4,
     )
     qr.add_data(data)
     qr.make(fit=True)
@@ -357,7 +357,15 @@ def read_root():
                     return;
                 }
 
-                QRCode.toCanvas(qrCanvas, value, { width: 250, margin: 2 }, function (error) {
+                QRCode.toCanvas(qrCanvas, value, {
+                    width: 300,
+                    margin: 4,
+                    errorCorrectionLevel: 'H',
+                    color: {
+                        dark: '#000000',
+                        light: '#ffffff'
+                    }
+                }, function (error) {
                     if (error) {
                         showResult(result, 'Error al generar el código QR.', true);
                         return;
